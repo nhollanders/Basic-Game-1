@@ -11,8 +11,8 @@ int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszA
     Game game;
 
     // Debug
-    game.setDisplayTitleFps(true);
-    game.setDebugText(true);
+    //game.setDisplayTitleFps(true);
+    //game.setDebugText(true);
 
     while (game.getIsRunning() && !game.getEndGame())
     {

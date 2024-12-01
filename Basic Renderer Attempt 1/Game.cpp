@@ -119,7 +119,7 @@ void Game::UpdateEnemies()
 		{
 			if (this->enemys[i].getFillColor() == Color::Red)
 			{
-				this->enemys[i].move(0.f, (2.f) * this->difficulty);
+				this->enemys[i].move(0.f, (1.5f) * this->difficulty);
 			}
 			else
 			{
