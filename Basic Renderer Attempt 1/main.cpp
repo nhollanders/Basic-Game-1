@@ -3,6 +3,9 @@
 
 int main()
 {
+    // SRand seed initialization
+    std::srand(static_cast<unsigned>(time(NULL)));
+
     // Init game engine
     Game game;
 

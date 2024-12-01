@@ -13,6 +13,15 @@ void Game::initVariables()
 	// FPS title displaying
 	this->displayFpsTitle = false;
 	this->fpsUpdateInterval = std::chrono::milliseconds(100);
+
+	// Game logic
+	this->points = 0;
+	this->enemySpawnInterval = std::chrono::seconds(4); // time in seconds
+	this->enemyNextSpawn = steady_clock::now() + this->enemySpawnInterval;
+	this->maxEnemys = 5;
+
+	this->enemyMoveInterval = std::chrono::milliseconds(5);
+	this->enemyNextMove = steady_clock::now() + this->enemyMoveInterval;
 }
 
 void Game::initWindow()
@@ -20,6 +29,17 @@ void Game::initWindow()
 	this->videoMode.height = 600;
 	this->videoMode.width = 800;
 	this->window = new RenderWindow(VideoMode(800, 600), "Game Window", Style::Default);
+	//this->window->setFramerateLimit(144);
+}
+
+void Game::initEnemys()
+{
+	this->enemy.setPosition(10.f, 10.f);
+
+	this->enemy.setSize(Vector2f(50.f, 50.f));
+	this->enemy.setFillColor(Color::Red);
+	this->enemy.setOutlineColor(Color::Yellow);
+	this->enemy.setOutlineThickness(1.f);
 }
 
 void Game::PollEvents()
@@ -40,6 +60,40 @@ void Game::PollEvents()
 			}
 		}
 	}
+}
+
+void Game::UpdateMousePos()
+{
+	// updates position of the mouse
+
+	this->mousePosWindow = sf::Mouse::getPosition(*this->window);
+}
+
+void Game::UpdateEnemies()
+{
+	// updates enemies by spawning and incrementing timer for next spawn if less than max enemys
+	if (this->enemys.size() < this->maxEnemys)
+	{
+		if (this->enemyNextSpawn <= steady_clock::now())
+		{
+			this->spawnEnemy();
+			this->enemyNextSpawn = steady_clock::now() + this->enemySpawnInterval;
+		}
+	}
+
+	// moves enemys
+	if (this->enemyNextMove <= steady_clock::now())
+	{
+		for (int i = 0; i < this->enemys.size(); i++)
+		{
+			this->enemys[i].move(0.f, 1.f);
+		}
+		
+		this->enemyNextMove = steady_clock::now() + this->enemyMoveInterval;
+	}
+
+	// delete enemys if they reach the bottom of the screen
+
 }
 
 void Game::preRender() // ran before rendering
@@ -70,6 +124,15 @@ void Game::postRender() // ran right after rendering
 	}
 }
 
+void Game::renderEnemys()
+{
+	for (int i = 0; i < this->enemys.size(); i++)
+	{
+		this->window->draw(this->enemys[i]);
+	}
+	//this->window->draw(this->enemy);
+}
+
 /*
 * Constructors
 */
@@ -77,6 +140,7 @@ Game::Game()
 {
 	this->initVariables(); // initialize all variables
 	this->initWindow(); // initialize window
+	this->initEnemys();
 }
 
 Game::~Game()
@@ -100,14 +164,30 @@ void Game::setFpsUpdateInterval(std::chrono::milliseconds msPar) { // lets you s
 	this->fpsUpdateInterval = msPar;
 }
 
+
 /*
 * Public functions
 */
+void Game::spawnEnemy()
+{
+	// spawns enemies into the game and sets their pos/color
+
+	this->enemy.setPosition(
+		static_cast<float>(rand() % static_cast<int>(this->window->getSize().x - this->enemy.getSize().x)),
+		0.f
+	);
+
+	this->enemy.setFillColor(Color::Red);
+
+	// spawn enemy
+	this->enemys.push_back(this->enemy);
+}
 
 void Game::update() // game logic and functionality
 {
 	this->PollEvents();
-
+	this->UpdateMousePos();
+	this->UpdateEnemies();
 }
 
 void Game::render() // rendering pixels on screen
@@ -122,7 +202,7 @@ void Game::render() // rendering pixels on screen
 	this->preRender();
 	this->window->clear();
 
-	// display objects here
+	this->renderEnemys();
 
 	this->window->display();
 	this->postRender();
