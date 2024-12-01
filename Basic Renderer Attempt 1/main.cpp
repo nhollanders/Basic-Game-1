@@ -9,9 +9,10 @@ int main()
     // Init game engine
     Game game;
 
-    game.setDisplayTitleFps(true); 
+    // Debug
+    game.setDisplayTitleFps(true);
 
-    while (game.getIsRunning())
+    while (game.getIsRunning() && !game.getEndGame())
     {
         // Update
         game.update();

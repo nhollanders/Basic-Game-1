@@ -32,6 +32,7 @@ class Game
 
 		//Mouse positions
 		sf::Vector2i mousePosWindow;
+		sf::Vector2f mousePosView;
 
 		// Window FPS displaying
 		std::chrono::steady_clock::time_point start, end, nextUpdate;
@@ -42,29 +43,42 @@ class Game
 		void initVariables();
 		void initWindow();
 		void initEnemys();
+		void initResources();
+		void initText();
 
 		// Pivate update functions
 		void PollEvents();
 		void UpdateMousePos();
 		void UpdateEnemies();
+		void UpdateText();
 
 		// Rendering
 		void preRender();
 		void postRender();
 		void renderEnemys();
+		void renderText();
+
+		// Resources
+		sf::Font font;
+
+		// Text
+		sf::Text uiText;
 
 		//GameLogic
-		int points;
+		unsigned int points;
+		bool endGame;
+		bool mouseHeld;
+		int health;
 
 		std::chrono::steady_clock::time_point enemyNextSpawn;
-		std::chrono::seconds enemySpawnInterval;
+		std::chrono::milliseconds enemySpawnInterval;
 		std::chrono::steady_clock::time_point enemyNextMove;
 		std::chrono::milliseconds enemyMoveInterval;
-		int maxEnemys;
+		unsigned int maxEnemys;
 
 		// Game Objects
-		std::vector<sf::RectangleShape> enemys;
-		sf::RectangleShape enemy;
+		std::vector<sf::CircleShape> enemys;
+		sf::CircleShape enemy;
 
 	public:
 		// contstructors & deconstructors
@@ -73,6 +87,7 @@ class Game
 
 		// Accesors
 		const bool getIsRunning()const;
+		const bool getEndGame()const;
 
 		void setDisplayTitleFps(bool boolPar);
 		void setFpsUpdateInterval(std::chrono::milliseconds msPar);
