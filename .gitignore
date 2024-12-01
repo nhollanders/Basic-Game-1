@@ -38,3 +38,10 @@
 /Basic Renderer Attempt 1/x64/Debug
 /x64/Debug
 /Debug
+/Release
+/Basic Renderer Attempt 1/Release/Basic Re.fde518f7.tlog
+*.recipe
+*.ipdb
+*.iobj
+*.log
+*.pdb
