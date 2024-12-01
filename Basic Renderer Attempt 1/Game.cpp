@@ -15,6 +15,7 @@ void Game::initVariables()
 	this->fpsUpdateInterval = std::chrono::milliseconds(100);
 
 	// Game logic
+	this->difficulty = 1;
 	this->endGame = false;
 	this->health = 10;
 	this->points = 0;
@@ -25,13 +26,16 @@ void Game::initVariables()
 
 	this->enemyMoveInterval = std::chrono::milliseconds(5);
 	this->enemyNextMove = steady_clock::now() + this->enemyMoveInterval;
+
+	// Extra
+	this->debugText = false;
 }
 
 void Game::initWindow()
 {
 	this->videoMode.height = 600;
 	this->videoMode.width = 800;
-	this->window = new RenderWindow(VideoMode(800, 600), "Balls", Style::Default);
+	this->window = new RenderWindow(VideoMode(800, 600), "Balls", Style::Titlebar | Style::Close);
 	this->window->setIcon(this->windowIcon.getSize().x, this->windowIcon.getSize().y, this->windowIcon.getPixelsPtr());
 	//this->window->setFramerateLimit(144);
 }
@@ -115,11 +119,11 @@ void Game::UpdateEnemies()
 		{
 			if (this->enemys[i].getFillColor() == Color::Red)
 			{
-				this->enemys[i].move(0.f, 2.f);
+				this->enemys[i].move(0.f, (2.f) * this->difficulty);
 			}
 			else
 			{
-				this->enemys[i].move(0.f, 1.f);
+				this->enemys[i].move(0.f, (1.f) * this->difficulty);
 			}
 
 			// if enemy went past the screen bottom
@@ -150,9 +154,15 @@ void Game::UpdateEnemies()
 					{
 						this->points += 4;
 						this->health += 1; // increase hp for hitting red balls
+
+						this->difficulty = std::max(log(static_cast<float>(points) / 20.f), 1.f);
 					}
 					else
+					{
 						this->points += 1;
+
+						this->difficulty = std::max(log(static_cast<float>(points) / 20.f), 1.f);
+					}
 				
 					deleted = true;
 					this->enemys.erase(this->enemys.begin() + i);
@@ -169,8 +179,19 @@ void Game::UpdateEnemies()
 void Game::UpdateText()
 {
 	std::stringstream ss;
-	ss << "Points: " << this->points << "\n"
-		<< "Health: " << this->health << "\n";
+
+	switch (this->debugText)
+	{
+	case 0: // debug text disabled
+		ss << "Points: " << this->points << "\n"
+			<< "Health: " << this->health << "\n";
+		break;
+	case 1: // debug text enabled
+		ss << "Points: " << this->points << "\n"
+			<< "Health: " << this->health << "\n"
+			<< "Difficulty: " << this->difficulty << "\n";
+		break;
+	}
 
 	this->uiText.setString(ss.str());
 }
@@ -247,6 +268,11 @@ const bool Game::getEndGame() const
 	return this->endGame;
 }
 
+void Game::setDebugText(bool boolPar)
+{
+	this->debugText = boolPar;
+}
+
 void Game::setDisplayTitleFps(bool boolPar) { // lets you set if the fps is displayed in the title or not
 	this->displayFpsTitle = boolPar;
 }
@@ -274,8 +300,8 @@ void Game::spawnEnemy()
 	this->enemy.scale(Vector2f(randScale, randScale));
 
 	this->enemy.setPosition(
-		static_cast<float>(rand() % static_cast<int>(this->window->getSize().x - (this->enemy.getRadius()*this->enemy.getScale().x))),
-		-(this->enemy.getRadius() * this->enemy.getScale().y)
+		static_cast<float>(rand() % static_cast<int>(this->window->getSize().x - ((this->enemy.getRadius()*this->enemy.getScale().x) * 2))),
+		-((this->enemy.getRadius() * this->enemy.getScale().y) * 2)
 	);
 
 	// spawn enemy

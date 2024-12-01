@@ -8,6 +8,7 @@
 #include <sstream>
 #include <vector>
 #include <ctime>
+#include <cmath>
 
 // SFML includes
 #include <SFML/Graphics.hpp>
@@ -63,14 +64,17 @@ class Game
 		sf::Image windowIcon;
 
 		// Text
+		bool debugText;
 		sf::Text uiText;
 
-		//GameLogic
+		//Game Logic
+		float difficulty; // scalar for time difficulty
 		unsigned int points;
 		bool endGame;
 		bool mouseHeld;
 		int health;
 
+		// enemy logic
 		std::chrono::steady_clock::time_point enemyNextSpawn;
 		std::chrono::milliseconds enemySpawnInterval;
 		std::chrono::steady_clock::time_point enemyNextMove;
@@ -90,6 +94,7 @@ class Game
 		const bool getIsRunning()const;
 		const bool getEndGame()const;
 
+		void setDebugText(bool boolPar);
 		void setDisplayTitleFps(bool boolPar);
 		void setFpsUpdateInterval(std::chrono::milliseconds msPar);
 
