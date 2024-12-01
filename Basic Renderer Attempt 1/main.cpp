@@ -1,7 +1,8 @@
 // Project Specific Includes (custom)
 #include "Game.h"
+#include <Windows.h>
 
-int main()
+int WINAPI WinMain(HINSTANCE hThisInstance, HINSTANCE hPrevInstance, LPSTR lpszArgument, int nCmdShow)
 {
     // SRand seed initialization
     std::srand(static_cast<unsigned>(time(NULL)));
@@ -10,7 +11,7 @@ int main()
     Game game;
 
     // Debug
-    game.setDisplayTitleFps(true);
+    game.setDisplayTitleFps(false);
 
     while (game.getIsRunning() && !game.getEndGame())
     {

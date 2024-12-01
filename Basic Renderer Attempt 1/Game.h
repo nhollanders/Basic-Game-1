@@ -13,8 +13,8 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/Window.hpp>
-#include <SFML/Audio.hpp>
-#include <SFML/Network.hpp>
+//#include <SFML/Audio.hpp>
+//#include <SFML/Network.hpp>
 
 /*
 * Primary Game Engine Wrapper Class
@@ -60,6 +60,7 @@ class Game
 
 		// Resources
 		sf::Font font;
+		sf::Image windowIcon;
 
 		// Text
 		sf::Text uiText;

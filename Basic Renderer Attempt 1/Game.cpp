@@ -31,7 +31,8 @@ void Game::initWindow()
 {
 	this->videoMode.height = 600;
 	this->videoMode.width = 800;
-	this->window = new RenderWindow(VideoMode(800, 600), "Game Window", Style::Default);
+	this->window = new RenderWindow(VideoMode(800, 600), "Balls", Style::Default);
+	this->window->setIcon(this->windowIcon.getSize().x, this->windowIcon.getSize().y, this->windowIcon.getPixelsPtr());
 	//this->window->setFramerateLimit(144);
 }
 
@@ -51,6 +52,7 @@ void Game::initResources()
 	bool noResourceLoadIssues = true;
 
 	noFontLoadIssues = this->font.loadFromFile("Fonts/PolygonParty.ttf");
+	noResourceLoadIssues = this->windowIcon.loadFromFile("Resources/balls_icon.png");
 
 	if (!noFontLoadIssues)
 		std::cout << "Error loading fonts!" << "\n";
@@ -263,7 +265,7 @@ void Game::spawnEnemy()
 	float randScale = static_cast<float>((rand() % 2) + 1);
 	this->enemy.setFillColor(Color(50, 50, 50, 255));
 
-	if (static_cast<int>(rand() % 4) == 2) // extra points harder to catch
+	if (static_cast<int>(rand() % 8) == 2) // extra points harder to catch
 	{
 		randScale = 0.5;
 		this->enemy.setFillColor(Color::Red);
