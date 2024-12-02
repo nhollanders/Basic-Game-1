@@ -57,6 +57,8 @@ void Game::initResources()
 
 	noFontLoadIssues = this->font.loadFromFile("Fonts/PolygonParty.ttf");
 	noResourceLoadIssues = this->windowIcon.loadFromFile("Resources/balls_icon.png");
+	noResourceLoadIssues = this->popSoundBuf.loadFromFile("Resources/pop_sound.wav"); // load the sound to buffer
+	this->popSound.setBuffer(this->popSoundBuf); // load sound into a sound object
 
 	if (!noFontLoadIssues)
 		std::cout << "Error loading fonts!" << "\n";
@@ -115,11 +117,11 @@ void Game::UpdateEnemies()
 	// moves enemys and deletes if they are outside bottom bounds
 	if (this->enemyNextMove <= steady_clock::now())
 	{
-		for (int i = 0; i < this->enemys.size(); i++)
+		for (size_t i = 0; i < this->enemys.size(); i++)
 		{
 			if (this->enemys[i].getFillColor() == Color::Red)
 			{
-				this->enemys[i].move(0.f, (1.5f) * this->difficulty);
+				this->enemys[i].move(0.f, std::min(1.5f * this->difficulty, 3.f)); // to fast and its just humanly impossible to hit cause they are so small
 			}
 			else
 			{
@@ -146,24 +148,33 @@ void Game::UpdateEnemies()
 			bool deleted = false;
 			this->mouseHeld = true;
 
-			for (int i = 0; i < this->enemys.size() && deleted == false; i++)
+			for (size_t i = 0; i < this->enemys.size() && deleted == false; i++)
 			{
-				if (this->enemys[i].getGlobalBounds().contains(this->mousePosView))
+				auto entBound = this->enemys[i].getGlobalBounds();
+				if (entBound.contains(this->mousePosView) 
+					|| entBound.contains(this->mousePosView.x - 10.f, this->mousePosView.y) 
+					|| entBound.contains(this->mousePosView.x + 10.f, this->mousePosView.y)
+					|| entBound.contains(this->mousePosView.x, this->mousePosView.y + 20.f))
 				{
+					float randomPitch = std::min(0.5f / (static_cast <float> ((rand() + 1) % 10)), 1.f); // random pitch between 0 - n maxes at n added onto existing pitch change
+
 					if (this->enemys[i].getFillColor() == Color::Red)
 					{
 						this->points += 4;
 						this->health += 1; // increase hp for hitting red balls
 
-						this->difficulty = std::max(log(static_cast<float>(points) / 20.f), 1.f);
+						this->popSound.setPitch(1.2f + randomPitch);
 					}
 					else
 					{
 						this->points += 1;
-
-						this->difficulty = std::max(log(static_cast<float>(points) / 20.f), 1.f);
+						this->popSound.setPitch(1.f + randomPitch);
 					}
-				
+					
+					if (this->difficulty < 4.f)
+						this->difficulty = std::min(std::max(log(static_cast<float>(points) / 20.f), 1.f), 4.f);
+
+					this->popSound.play();
 					deleted = true;
 					this->enemys.erase(this->enemys.begin() + i);
 				}
@@ -211,7 +222,7 @@ void Game::postRender() // ran right after rendering
 		if (this->nextUpdate <= steady_clock::now()) // only updates every nextUpdate
 		{
 			auto frameDuration = duration_cast<std::chrono::microseconds>(this->end - this->start).count();
-			float fps = 1.0f / (frameDuration / 1e6); // from micro seconds to seconds (micro sec * 1,000,000 or 1e6) 
+			float fps = 1.0f / static_cast<float>(frameDuration / 1e6); // from micro seconds to seconds (micro sec * 1,000,000 or 1e6) 
 
 			std::stringstream stream;
 			stream << std::fixed << std::setprecision(3) << fps; // set precision to 3 decimal places
@@ -226,7 +237,7 @@ void Game::postRender() // ran right after rendering
 
 void Game::renderEnemys()
 {
-	for (int i = 0; i < this->enemys.size(); i++)
+	for (size_t i = 0; i < this->enemys.size(); i++)
 	{
 		this->window->draw(this->enemys[i]);
 	}
